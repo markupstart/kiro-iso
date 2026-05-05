@@ -4,6 +4,14 @@
 yay_url="https://aur.archlinux.org/cgit/aur.git/snapshot/yay-git.tar.gz"
 paru_url="https://aur.archlinux.org/cgit/aur.git/snapshot/paru-git.tar.gz"
 
+# Ensure build dependencies are present
+for pkg in debugedit fakeroot make gcc; do
+  if ! pacman -Qq "$pkg" &>/dev/null; then
+    echo "Installing missing dependency: $pkg"
+    sudo pacman -S --noconfirm "$pkg"
+  fi
+done
+
 # Menu
 echo "Choose a package to build:"
 echo "1) yay"
