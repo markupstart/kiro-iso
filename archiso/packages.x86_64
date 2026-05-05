@@ -1,3 +1,8 @@
+base
+linux
+linux-firmware
+archiso
+mkinitcpio-archiso
 base-devel
 bash-completion
 ###virtual box or vmware
@@ -201,7 +206,8 @@ unrar
 unzip
 upower
 vulkan-icd-loader
-vulkan-radeon
+mesa-tkg-git
+xf86-video-amdgpu
 wine
 winetricks
 wl-clipboard
