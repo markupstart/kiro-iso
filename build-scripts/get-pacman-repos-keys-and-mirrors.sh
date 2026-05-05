@@ -18,21 +18,19 @@ BASE_URL="https://geo-mirror.chaotic.cx/chaotic-aur/x86_64/"
 # Fetch the latest package URL function
 fetch_package_url() {
     local package_name="$1"
-    local package_url
-    package_url=$(curl -s "$BASE_URL" | grep -oP "${package_name}-[0-9][^\"]+\.pkg\.tar\.zst" | sort -V | tail -n 1)
-    echo "${BASE_URL}${package_url}"
+    local package_file
+    package_file=$(curl -sL "$BASE_URL" | grep -oP "(?<=href=\")[^\"]*${package_name}-[0-9][^\"]+\.pkg\.tar\.zst" | sort -V | tail -n 1)
+    if [[ -z "$package_file" ]]; then
+        echo -e "${RED}Error: Could not find package '${package_name}' in directory listing.${NC}" >&2
+        return 1
+    fi
+    echo "${BASE_URL}${package_file}"
 }
 
 # Retrieve package URLs
 echo -e "${YELLOW}Fetching Chaotic-AUR keyring and mirrorlist package URLs...${NC}"
-KEYRING_URL=$(fetch_package_url "chaotic-keyring")
-MIRRORLIST_URL=$(fetch_package_url "chaotic-mirrorlist")
-
-# Verify URL fetch success
-if [[ -z "$KEYRING_URL" || -z "$MIRRORLIST_URL" ]]; then
-    echo -e "${RED}Error: Failed to retrieve one or more package URLs.${NC}"
-    exit 1
-fi
+KEYRING_URL=$(fetch_package_url "chaotic-keyring") || exit 1
+MIRRORLIST_URL=$(fetch_package_url "chaotic-mirrorlist") || exit 1
 
 # Download packages
 echo -e "${YELLOW}Downloading packages...${NC}"
