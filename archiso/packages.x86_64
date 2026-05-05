@@ -2,7 +2,9 @@ base-devel
 bash-completion
 ###virtual box or vmware
 virtualbox-guest-utils
-
+syslinux
+memtest86+-efi
+edk2-shell
 ###packages for dual boot
 os-prober
 
@@ -16,7 +18,7 @@ gstreamer
 libdvdcss
 pavucontrol
 pipewire
-pipwire-pulse
+pipewire-pulse
 pulsemixer
 wireplumber
 
