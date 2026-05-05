@@ -172,8 +172,8 @@ echo
 echo "################################################################## "
 tput setaf 2
 echo "Phase 2 :"
-echo "- Checking if archiso/grub is installed"
-echo "- Saving current archiso version to readme"
+echo "- Checking if archiso/grub/syslinux/memtest86+-efi/edk2-shell are installed"
+echo "- Verifying archiso version and mkinitcpio hooks"
 tput sgr0
 echo "################################################################## "
 echo
@@ -208,6 +208,36 @@ echo
 		echo "!!!!!!!!!  "$package" has NOT been installed"
 		echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 		exit 1
+	fi
+
+	# Verify archiso version meets minimum requirement
+	installed_archiso_ver=$(pacman -Q archiso 2>/dev/null)
+	if [[ "$installed_archiso_ver" != "$archisoRequiredVersion" ]]; then
+		echo "################################################################"
+		tput setaf 3
+		echo "Installed : '$installed_archiso_ver'"
+		echo "Required  : '$archisoRequiredVersion'"
+		echo "Updating archiso to ensure correct mkinitcpio hooks are available..."
+		tput sgr0
+		echo "################################################################"
+		sudo pacman -S --noconfirm archiso
+	fi
+
+	# Verify archiso mkinitcpio hooks are present (prevents 'hook not found' warnings)
+	missing_hooks=()
+	for hook in archiso archiso_loop_mnt archiso_pxe_common archiso_pxe_nbd archiso_pxe_http archiso_pxe_nfs memdisk; do
+		if [[ ! -f "/usr/lib/initcpio/install/$hook" ]]; then
+			missing_hooks+=("$hook")
+		fi
+	done
+	if [[ ${#missing_hooks[@]} -gt 0 ]]; then
+		echo "################################################################"
+		tput setaf 1
+		echo "Missing mkinitcpio hooks: ${missing_hooks[*]}"
+		echo "Reinstalling archiso to restore hooks..."
+		tput sgr0
+		echo "################################################################"
+		sudo pacman -S --noconfirm archiso
 	fi
 
 	package="grub"
